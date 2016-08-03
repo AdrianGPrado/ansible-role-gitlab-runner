@@ -1,12 +1,13 @@
 ---
 # tasks file for gitlab-runner
 
+- include: pre-install.yml
+  tags:
+    - pre-install
+
 - include: install.yml
   tags:
     - install
-
-- include: update.yml
-  tags:
     - update
 
 - include: global-setup.yml

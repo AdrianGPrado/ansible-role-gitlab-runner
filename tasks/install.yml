@@ -1,13 +1,6 @@
 ---
-# tasks file to install gitlab-runner
 
-- include_vars: "{{ ansible_os_family }}.yml"
-
-- name: GitlabRunner | download gitlab-runner script
-  get_url:
-    url="{{ gitlab_runner_url }}/{{ gitlab_runner_script }}"
-    dest="/tmp/{{ gitlab_runner_script }}"
-    mode=0755
-
-- name: GitlabRunner | execute gitlab-runner script
-  raw: "sh /tmp/{{ gitlab_runner_script }}"
+- name: GitlabRunner | update gitlab-runner package
+  package:
+    name=gitlab-ci-multi-runner
+    state=latest
