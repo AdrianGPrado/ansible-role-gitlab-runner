@@ -8,3 +8,11 @@
 - include: update.yml
   tags:
     - update
+
+- include: global-setup.yml
+  tags:
+    - configure
+
+# - include: register.yml
+#   tags:
+#     - register

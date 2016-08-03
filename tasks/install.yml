@@ -10,9 +10,4 @@
     mode=0755
 
 - name: GitlabRunner | execute gitlab-runner script
-  script: "/tmp/{{ gitlab_runner_script }}"
-
-- name: GitlabRunner | install gitlab-runner package
-  package:
-    name=gitlab-ci-multi-runner
-    state=latest
+  raw: "sh /tmp/{{ gitlab_runner_script }}"
