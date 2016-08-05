@@ -1,0 +1,28 @@
+---
+# Maximum number of jobs to run concurrently
+gitlab_runner_concurrent: '{{ ansible_processor_cores }}'
+
+# GitLab coordinator URL
+gitlab_external_url: "https://gitlab"
+gitlab_runner_coordinator_url: '{{ gitlab_external_url }}/ci'
+
+# GitLab registration token
+gitlab_runner_registration_token: ''
+
+# Runner description
+gitlab_runner_description: '{{ ansible_hostname }}'
+
+# Runner executor
+# - Shell
+# - Docker
+# - Docker Machine and Docker Machine SSH (auto-scaling)
+# - Parallels
+# - VirtualBox
+# - SSH
+gitlab_runner_executor: 'shell'
+
+# Default Docker image
+gitlab_runner_docker_image: ''
+
+# Runner tags
+gitlab_runner_tags: []
