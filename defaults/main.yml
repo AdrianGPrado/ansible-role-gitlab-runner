@@ -1,10 +1,15 @@
 ---
-
+### ---- GITLAB-CI URL VARIABLES --- ###
 # GitLab coordinator URL Fully Qualified Domain Name (FQDN)
 gitlab_fqdn: gitlab
 gitlab_external_url: "https://{{ gitlab_fqdn }}"
 gitlab_runner_coordinator_url: '{{ gitlab_external_url }}/ci'
 
+### ---- GITLAB RUNNER USER VARIABLES --- ###
+gitlab_runner_user: root
+gitlab_runner_group: root
+
+### ---- GITLAB RUNNER SSL VARIABLES --- ###
 # Default: GitLab Runner reads system certificate store and verifies the GitLab
 # server against the CA's stored in system.
 # GitLab Runner reads the PEM (DER format is not supported) certificate from
@@ -28,6 +33,11 @@ gitrunner_ssl_crt: "{{ gitrunner_ssl_path }}/{{ gitlab_fqdn }}.crt"
 # Do NOT copy your certificate or key in this file.
 # It is your responsability to check that the `ssl_certificate` has no errors.
 ssl_certificate: ''
+
+### ---- GITLAB RUNNER CONFIGURATION VARIABLES --- ###
+
+gitlab_runner_conf_path: /etc/gitlab-runner/
+gitlab_runner_conf: config.toml
 
 # Maximum number of jobs to run concurrently
 gitlab_runner_concurrent: '{{ ansible_processor_cores }}'
