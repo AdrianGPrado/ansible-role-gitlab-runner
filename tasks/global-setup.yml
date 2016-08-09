@@ -2,7 +2,7 @@
 
 - name: GitlabRunner | Create SSL configuration folder.
   file:
-    path: "{{ gitrunner_ssl_path }}"
+    path: "{{ gitlab_runner_tls_path }}"
     state: directory
     owner: root
     group: root
@@ -17,15 +17,13 @@
     mode=0644
   with_items:
     - src:  "ssl_certificate.j2"
-      dest: "{{ gitrunner_ssl_crt }}"
+      dest: "{{ gitlab_runner_tls_ca_file }}"
   when: "'{{ ssl_certificate }}' != '' "
 
 # Create user & group `runner` to avoid using `root`
 
 # TODO: use a more elaborate template.
 - name: GitlabRunner | set global setup concurrent option
-  lineinfile:
-    dest: /etc/gitlab-runner/config.toml
-    regexp: ^concurrent =
-    line: concurrent = {{ gitlab_runner_concurrent }}
-    state: present
+  template:
+    src=config.toml.j2
+    dest="{{ gitlab_runner_conf_path }}/config.toml"
