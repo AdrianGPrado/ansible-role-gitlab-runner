@@ -1,10 +1,36 @@
 ---
+
+# GitLab coordinator URL Fully Qualified Domain Name (FQDN)
+gitlab_fqdn: gitlab
+gitlab_external_url: "https://{{ gitlab_fqdn }}"
+gitlab_runner_coordinator_url: '{{ gitlab_external_url }}/ci'
+
+# Default: GitLab Runner reads system certificate store and verifies the GitLab
+# server against the CA's stored in system.
+# GitLab Runner reads the PEM (DER format is not supported) certificate from
+# predefined file:
+#   - `/etc/gitlab-runner/certs/hostname.crt` on *nix systems when gitlab-runner
+#     is executed as root.
+#   - `~/.gitlab-runner/certs/hostname.crt` on *nix systems when gitlab-runner
+#     is executed as non-root,
+#   - `./certs/hostname.crt` on other systems.
+#
+# If address of your server is: `https://my.gitlab.server.com:8443/`.
+# Create the certificate file at:
+#   - `/etc/gitlab-runner/certs/my.gitlab.server.com.crt`.
+# GitLab Runner exposes tls-ca-file option during registration and in
+# config.toml which allows you to specify custom file with certificates. This
+# file will be read everytime when runner tries to access the GitLab server.
+gitrunner_ssl_path: "/etc/gitlab/certs"
+gitrunner_ssl_crt: "{{ gitrunner_ssl_path }}/{{ gitlab_fqdn }}.crt"
+
+# Please override this variable when calling the role.
+# Do NOT copy your certificate or key in this file.
+# It is your responsability to check that the `ssl_certificate` has no errors.
+ssl_certificate: ''
+
 # Maximum number of jobs to run concurrently
 gitlab_runner_concurrent: '{{ ansible_processor_cores }}'
-
-# GitLab coordinator URL
-gitlab_external_url: "https://gitlab"
-gitlab_runner_coordinator_url: '{{ gitlab_external_url }}/ci'
 
 # GitLab registration token
 gitlab_runner_registration_token: ''

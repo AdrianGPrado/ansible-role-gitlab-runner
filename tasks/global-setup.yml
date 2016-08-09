@@ -1,4 +1,28 @@
 ---
+
+- name: GitlabRunner | Create SSL configuration folder.
+  file:
+    path: "{{ gitrunner_ssl_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  when: "'{{ ssl_certificate }}' != '' "
+
+# Copy gitlab/ci SSL certificate
+- name: GitlabRunner | Deploy self-signed certificate.
+  template:
+    src={{ item.src }}
+    dest={{ item.dest }}
+    mode=0644
+  with_items:
+    - src:  "ssl_certificate.j2"
+      dest: "{{ gitrunner_ssl_crt }}"
+  when: "'{{ ssl_certificate }}' != '' "
+
+# Create user & group `runner` to avoid using `root`
+
+# TODO: use a more elaborate template.
 - name: GitlabRunner | set global setup concurrent option
   lineinfile:
     dest: /etc/gitlab-runner/config.toml
