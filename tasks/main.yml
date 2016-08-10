@@ -1,6 +1,10 @@
 ---
 # tasks file for gitlab-runner
 
+- include: check-vars.yml
+  tags:
+    - checks
+
 - include: pre-install.yml
   tags:
     - pre-install
@@ -14,6 +18,6 @@
   tags:
     - configure
 
-# - include: register.yml
-#   tags:
-#     - register
+- include: register.yml
+  tags:
+    - register
