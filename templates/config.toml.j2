@@ -1,26 +1,33 @@
-{%- macro check_val(key, val) -%}
-{%- if val is defined and val != None and val != '' -%}
+{%- macro check_val(key, val) %}
+{%- if val is defined and val != None and val != '' %}
 {{ key }} = {{ val }}
-{%- endif -%}
-{%- endmacro -%}
+{%- endif %}
+{%- endmacro %}
 
-{%- macro check_str(key, val) -%}
-{%- if val is defined and val | length > 0 -%}
+{%- macro check_str(key, val) %}
+{%- if val is defined and val | length > 0 %}
 {{ key }} = "{{ val }}"
-{%- endif -%}
-{%- endmacro -%}
+{%- endif %}
+{%- endmacro %}
 
-{%- macro check_list(key, val) -%}
-{%- if val is defined and val | length > 0 -%}
-{{ key }} = {{ val }}
+{%- macro check_list(key, val) %}
+{%- if val is defined and val | length > 0 %}
+{{ key }} = [ {%- for v in val -%}
+              "{{ v }}"
+              {%- if not loop.last -%}
+                ,
+              {%+ endif %}
+              {%- endfor -%}
+            ]
 {%- endif -%}
 {%- endmacro -%}
 
 # GLOBAL SECTION
 concurrent={{ gitlab_runner_concurrent }}
-{{ check_val('check_interval', gitlab_runner_check_interval) -}}
-{{- check_str('sentry_dsn', gitlab_runner_sentry_dsn) }}
+{{ check_val('check_interval', gitlab_runner_check_interval) }}
+{{ check_str('sentry_dsn', gitlab_runner_sentry_dsn) }}
 
+{% if gitlab_runner_coordinator_url | length > 0 %}
 [[runners]]
   name = "{{ gitlab_runner_name }}"
   url = "{{ gitlab_runner_coordinator_url }}"
@@ -30,13 +37,14 @@ concurrent={{ gitlab_runner_concurrent }}
   {{ check_str('tls-ca-file', gitlab_runner_tls_ca_file) }}
   {{ check_val('tls-skip-verify', gitlab_runner_tls_skip_verify) }}
   {{ check_str('builds_dir', gitlab_runner_builds_dir) }}
-  {{ check_val('environment', gitlab_runner_environment) }}
+  {{ check_list('environment', gitlab_runner_environment) }}
   {{ check_val('disable_verbose', gitlab_runner_disable_verbose) }}
-  {#{{ check_val('shell', gitlab_runner_shell) }} #}
+  {{ check_val('shell', gitlab_runner_shell) }}
+{% endif -%}
 
 {%- if gitlab_runner_executor == 'docker-ssh' or
-       gitlab_runner_executor == 'docker'     or
-       gitlab_runner_executor == 'docker-ssh+machine' %}
+      gitlab_runner_executor == 'docker'     or
+      gitlab_runner_executor == 'docker-ssh+machine' %}
   [runners.docker]
     image = "{{ gitlab_runner_docker_image }}"
     {{ check_str('host', gitlab_runner_docker_host) }}
@@ -60,7 +68,8 @@ concurrent={{ gitlab_runner_concurrent }}
     {{ check_list('allowed_services', gitlab_runner_docker_allowed_services) }}
 {% endif -%}
 
-{%- if gitlab_runner_executor == 'virtualbox' %}
+{%- if gitlab_runner_executor == 'virtualbox' or
+       gitlab_runner_executor == 'docker-ssh' %}
   [runners.virtualbox]
     base_name = "{{ gitlab_runner_vb_base_name }}"
     base_snapshot = "{{ gitlab_runner_vb_base_snapshot }}"
