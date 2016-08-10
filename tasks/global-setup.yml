@@ -1,7 +1,37 @@
 ---
-- name: GitlabRunner | set global setup concurrent option
-  lineinfile:
-    dest: /etc/gitlab-runner/config.toml
-    regexp: ^concurrent =
-    line: concurrent = {{ gitlab_runner_concurrent }}
-    state: present
+
+# As a rule of thumb I don't like to have servicies that can execute random
+# code, running with `root` privileges. So lets create a group and User to run
+# Gitlab-Runner
+- name: GitlabRunner | Create Group for `grunner` User
+  group:
+    name={{ gitlab_runner_group }}
+    state=present
+  when: "'{{ gitlab_runner_group }}' != 'root'"
+
+- name: GitlabRunner | Create User `grunner`
+  user:
+    name={{ gitlab_runner_user }}
+    comment="Gitlab Runner"
+    group={{ gitlab_runner_group }}
+  when: "'{{ gitlab_runner_user }}' != 'root'"
+
+- name: GitlabRunner | Create SSL configuration folder.
+  file:
+    path="{{ gitlab_runner_tls_path }}"
+    state=directory
+    owner={{ gitlab_runner_user }}
+    group={{ gitlab_runner_user }}
+    mode=0700
+  when: "'{{ ssl_certificate }}' != '' "
+
+# Copy gitlab/ci SSL certificate
+- name: GitlabRunner | Deploy self-signed certificate.
+  template:
+    src={{ item.src }}
+    dest={{ item.dest }}
+    mode=0644
+  with_items:
+    - src:  "ssl_certificate.j2"
+      dest: "{{ gitlab_runner_tls_ca_file }}"
+  when: "'{{ ssl_certificate }}' != '' "
