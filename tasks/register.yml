@@ -1,16 +1,33 @@
 ---
-- name: GitlabRunner | list configured runners
-  command: gitlab-runner list
-  register: configured_runners
-  changed_when: False
 
-- name: GitlabRunner | register runner to GitLab
-  command: gitlab-runner register >
-    --non-interactive
-    --url '{{ gitlab_runner_coordinator_url }}'
-    --registration-token '{{ gitlab_runner_registration_token }}'
-    --description '{{ gitlab_runner_description }}'
-    --tag-list '{{ gitlab_runner_tags | join(",") }}'
-    --executor '{{ gitlab_runner_executor }}'
-    --docker-image '{{ gitlab_runner_docker_image }}'
-  when: configured_runners.stderr.find('\n{{ gitlab_runner_description }}') == -1
+
+- name: GitlabRunner | import ssl certificate from server
+  command: |
+    "echo -n | \
+     openssl s_client -connect {{ gitlab_external_url }}:443 | \
+     sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ./gitlab.cert"
+
+# - name: GitlabRunner | list configured runners
+#   command: gitlab-runner list
+#   register: configured_runners
+#   changed_when: False
+#
+# - name: GitlabRunner | register runner to GitLab
+#   command: gitlab-runner register >
+#     --non-interactive
+#     --url '{{ gitlab_runner_coordinator_url }}'
+#     --registration-token '{{ gitlab_runner_registration_token }}'
+#     --description '{{ gitlab_runner_description }}'
+#     --tag-list '{{ gitlab_runner_tags | join(",") }}'
+#     --executor '{{ gitlab_runner_executor }}'
+#     --docker-image '{{ gitlab_runner_docker_image }}'
+#   when: configured_runners.stderr.find('\n{{ gitlab_runner_description }}') == -1
+# gitlab-runner register                           \
+#     --non-interactive                            \
+#     --url 'https://gitlab/ci'                    \
+#     --registration-token 'zWd4izFohUzGoK8GQmmz'  \
+#     --description 'tests'                        \
+#     --tag-list 'tests'                           \
+#     --executor 'docker'                          \
+#     --docker-image 'ruby:2.1'                    \
+#     --tls-skip-verify=true
