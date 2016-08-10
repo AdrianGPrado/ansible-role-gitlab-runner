@@ -20,8 +20,8 @@
   file:
     path="{{ gitlab_runner_tls_path }}"
     state=directory
-    owner=root
-    group=root
+    owner={{ gitlab_runner_user }}
+    group={{ gitlab_runner_user }}
     mode=0700
   when: "'{{ ssl_certificate }}' != '' "
 
@@ -35,9 +35,3 @@
     - src:  "ssl_certificate.j2"
       dest: "{{ gitlab_runner_tls_ca_file }}"
   when: "'{{ ssl_certificate }}' != '' "
-
-# TODO: use a more elaborate template.
-- name: GitlabRunner | set global setup concurrent option
-  template:
-    src=config.toml.j2
-    dest="{{ gitlab_runner_conf_path }}/config.toml"
