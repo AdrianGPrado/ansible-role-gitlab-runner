@@ -1,11 +1,11 @@
 ---
 
-
-- name: GitlabRunner | import ssl certificate from server
-  command: |
-    "echo -n | \
-     openssl s_client -connect {{ gitlab_external_url }}:443 | \
-     sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ./gitlab.cert"
+# 
+# - name: GitlabRunner | import ssl certificate from server
+#   command: |
+#     "echo -n | \
+#      openssl s_client -connect {{ gitlab_external_url }}:443 | \
+#      sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ./gitlab.cert"
 
 # - name: GitlabRunner | list configured runners
 #   command: gitlab-runner list
