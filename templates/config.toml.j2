@@ -1,12 +1,18 @@
 {%- macro check_val(key, val) -%}
-{%- if val | length > 0 -%}
+{%- if val is defined and val != None and val != '' -%}
 {{ key }} = {{ val }}
 {%- endif -%}
 {%- endmacro -%}
 
 {%- macro check_str(key, val) -%}
-{%- if val | length > 0 -%}
+{%- if val is defined and val | length > 0 -%}
 {{ key }} = "{{ val }}"
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro check_list(key, val) -%}
+{%- if val is defined and val | length > 0 -%}
+{{ key }} = {{ val }}
 {%- endif -%}
 {%- endmacro -%}
 
@@ -16,75 +22,70 @@ concurrent={{ gitlab_runner_concurrent }}
 {{- check_str('sentry_dsn', gitlab_runner_sentry_dsn) }}
 
 [[runners]]
-  {{ check_str('name', gitlab_runner_name) }}
+  name = "{{ gitlab_runner_name }}"
   url = "{{ gitlab_runner_coordinator_url }}"
   token = "{{ gitlab_runner_token }}"
-  limit = {{ gitlab_runner_limit }}
-  {{ check_val('tls-ca-file', gitlab_runner_tls_ca_file) -}}
-  {{- check_val('tls-skip-verify', gitlab_runner_tls_skip_verify) }}
-  limit = {{ gitlab_runner_limit }}
   executor = "{{ gitlab_runner_executor }}"
-  {{ check_val('builds_dir', gitlab_runner_builds_dir) -}}
-  {{- check_val('shell', gitlab_runner_shell) }}
-  environment = {{ gitlab_runner_environment }}
-  disable_verbose = {{ gitlab_runner_disable_verbose }}
+  limit = {{ gitlab_runner_limit }}
+  {{ check_str('tls-ca-file', gitlab_runner_tls_ca_file) }}
+  {{ check_val('tls-skip-verify', gitlab_runner_tls_skip_verify) }}
+  {{ check_str('builds_dir', gitlab_runner_builds_dir) }}
+  {{ check_val('environment', gitlab_runner_environment) }}
+  {{ check_val('disable_verbose', gitlab_runner_disable_verbose) }}
+  {#{{ check_val('shell', gitlab_runner_shell) }} #}
 
-{% if gitlab_runner_executor == 'docker-ssh' or
-      gitlab_runner_executor == 'docker'     or
-      gitlab_runner_executor == 'docker-ssh+machine' %}
-[runners.docker]
-  host = "{{ gitlab_runner_docker_host }}"
-  hostname = "{{ gitlab_runner_docker_hostname }}"
-  tls_cert_path = "{{ gitlab_runner_docker_tls_cert_path }}"
-  image = "{{ gitlab_runner_docker_image }}"
-  cpuset_cpus = "{{ gitlab_runner_docker_cpuset_cpus }}"
-  dns = {{ gitlab_runner_docker_dns }}
-  dns_search = {{ gitlab_runner_docker_dns_search }}
-  privileged = {{ gitlab_runner_docker_privileged }}
-  cap_add = {{ gitlab_runner_docker_cap_add }}
-  cap_drop = {{ gitlab_runner_docker_cap_drop }}
-  devices = {{ gitlab_runner_docker_devices }}
-  disable_cache = {{ gitlab_runner_docker_disable_cache }}
-  wait_for_services_timeout = {{ gitlab_runner_docker_wait_srv_timeout }}
-  cache_dir = "{{ gitlab_runner_docker_cache_dir }}"
-  volumes = {{ gitlab_runner_docker_volumes }}
-  extra_hosts = {{ gitlab_runner_docker_extra_hosts }}
-  links = {{ gitlab_runner_docker_links }}
-  services = {{ gitlab_runner_docker_services }}
-  allowed_images = {{ gitlab_runner_docker_allowed_images }}
-  allowed_services = {{ gitlab_runner_docker_allowed_services }}
-
+{%- if gitlab_runner_executor == 'docker-ssh' or
+       gitlab_runner_executor == 'docker'     or
+       gitlab_runner_executor == 'docker-ssh+machine' %}
+  [runners.docker]
+    image = "{{ gitlab_runner_docker_image }}"
+    {{ check_str('host', gitlab_runner_docker_host) }}
+    {{ check_str('hostname', gitlab_runner_docker_hostname) }}
+    {{ check_str('tls_cert_path', gitlab_runner_docker_tls_cert_path) }}
+    {{ check_str('cpuset_cpus', gitlab_runner_docker_cpuset_cpus) }}
+    {{ check_list('dns', gitlab_runner_docker_dns) }}
+    {{ check_list('dns_search', gitlab_runner_docker_dns_search) }}
+    {{ check_val('privileged', gitlab_runner_docker_privileged) }}
+    {{ check_list('cap_add', gitlab_runner_docker_cap_add) }}
+    {{ check_list('cap_drop', gitlab_runner_docker_cap_drop) }}
+    {{ check_list('devices', gitlab_runner_docker_devices) }}
+    {{ check_val('disable_cache', gitlab_runner_docker_disable_cache) }}
+    {{ check_val('wait_for_services_timeout', gitlab_runner_docker_wait_srv_timeout) }}
+    {{ check_str('cache_dir', gitlab_runner_docker_cache_dir) }}
+    {{ check_list('volumes', gitlab_runner_docker_volumes) }}
+    {{ check_list('extra_hosts', gitlab_runner_docker_extra_hosts) }}
+    {{ check_list('links', gitlab_runner_docker_links) }}
+    {{ check_list('services', gitlab_runner_docker_services) }}
+    {{ check_list('allowed_images', gitlab_runner_docker_allowed_images) }}
+    {{ check_list('allowed_services', gitlab_runner_docker_allowed_services) }}
 {% endif -%}
 
 {%- if gitlab_runner_executor == 'virtualbox' %}
-[runners.virtualbox]
-  base_name = "{{ gitlab_runner_vb_base_name }}"
-  base_snapshot = "{{ gitlab_runner_vb_base_snapshot }}"
-  disable_snapshots = {{ gitlab_runner_vb_disable_snapshots }}
-
+  [runners.virtualbox]
+    base_name = "{{ gitlab_runner_vb_base_name }}"
+    base_snapshot = "{{ gitlab_runner_vb_base_snapshot }}"
+    disable_snapshots = "{{ gitlab_runner_vb_disable_snapshots }}"
 {% endif -%}
 
 {%- if gitlab_runner_executor == 'docker-ssh' or
        gitlab_runner_executor == 'virtualbox' or
        gitlab_runner_executor == 'ssh' %}
-[runners.ssh]
-  host = "{{ gitlab_runner_ssh_host }}"
-  port = "{{ gitlab_runner_ssh_port }}"
-  user = "{{ gitlab_runner_ssh_user }}"
-  password = "{{ gitlab_runner_ssh_password }}"
-  identity_file = "{{ gitlab_runner_ssh_identity_file }}"
-
+  [runners.ssh]
+    host = "{{ gitlab_runner_ssh_host }}"
+    port = "{{ gitlab_runner_ssh_port }}"
+    user = "{{ gitlab_runner_ssh_user }}"
+    identity_file = "{{ gitlab_runner_ssh_identity_file }}"
 {% endif -%}
 
 {%- if gitlab_runner_executor == 'docker-ssh+machine' or
+       gitlab_runner_executor == 'docker-ssh'         or
        gitlab_runner_executor == 'docker+machine'     or
        gitlab_runner_executor == 'ssh' %}
-[runners.machine]
-  IdleCount = {{ gitlab_runner_machine_IdleCount }}
-  IdleTime = {{ gitlab_runner_machine_IdleTime }}
-  MaxBuilds = {{ gitlab_runner_machine_MaxBuilds }}
-  MachineName = "{{ gitlab_runner_machine_MachineName }}"
-  MachineDriver = "{{ gitlab_runner_machine_MachineDriver }}"
-  MachineOptions = {{ gitlab_runner_machine_MachineOptions }}
-
+  [runners.machine]
+    IdleCount = {{ gitlab_runner_machine_IdleCount }}
+    IdleTime = {{ gitlab_runner_machine_IdleTime }}
+    MaxBuilds = {{ gitlab_runner_machine_MaxBuilds }}
+    MachineName = "{{ gitlab_runner_machine_MachineName }}"
+    MachineDriver = "{{ gitlab_runner_machine_MachineDriver }}"
+    {{ check_list('MachineOptions', gitlab_runner_machine_MachineOptions) }}
 {% endif -%}
