@@ -15,8 +15,7 @@ ssl_certificate: ''
 
 ### ---- GITLAB RUNNER CONFIGURATION VARIABLES --- ###
 
-gitlab_runner_conf_path: /etc/gitlab-runner/
-gitlab_runner_conf: config.toml
+gitlab_runner_conf_file: config.toml
 
 # Runner tags
 gitlab_runner_tags: []
@@ -37,7 +36,7 @@ gitlab_runner_name: 'runner_test'
 # CI URL
 gitlab_runner_coordinator_url: 'https://{{ gitlab_fqdn }}/ci'
 # runner token
-gitlab_runner_token: 'FOOFOOBAR'
+gitlab_runner_token: ''
 # select how a project should be built, see next section
 # run build locally, default
 #   - shell
@@ -71,8 +70,7 @@ gitlab_runner_executor: 'docker'
 # don't limit
 gitlab_runner_limit: '0'
 # file containing the certificates to verify the peer when using HTTPS
-gitlab_runner_tls_path: "/etc/gitlab/certs"
-gitlab_runner_tls_ca_file: "{{ gitlab_runner_tls_path }}/{{ gitlab_fqdn }}.crt"
+gitlab_runner_tls_ca_file: ''
 # whether to verify the TLS certificate when using HTTPS, default: false
 gitlab_runner_tls_skip_verify: false
 # the name of shell to generate the script (default value is platform dependent)
@@ -91,7 +89,6 @@ gitlab_runner_environment:
 gitlab_runner_disable_verbose: false
 # set maximum build log size in kilobytes, by default set to 4096 (4MB)
 gitlab_runner_output_limit: ''
-
 
 
 ##------ [runners.docker] ------##
