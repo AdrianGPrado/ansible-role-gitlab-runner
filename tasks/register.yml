@@ -27,6 +27,6 @@
 - name: GitlabRunner | set global setup concurrent option
   template:
     src=config.toml.j2
-    dest="{{ gitlab_runner_conf_path }}/config.toml"
+    dest="{{ gitlab_runner_conf_path }}/{{ gitlab_runner_conf_file }}"
   notify:
     - reload gitlab-runner
