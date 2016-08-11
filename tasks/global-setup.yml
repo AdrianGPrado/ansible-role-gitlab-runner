@@ -18,18 +18,25 @@
 
 - name: GitlabRunner | Create SSL configuration folder.
   file:
-    path="{{ gitlab_runner_tls_path }}"
+    path="{{ gitlab_runner_conf_path }}/certs"
     state=directory
     owner={{ gitlab_runner_user }}
     group={{ gitlab_runner_user }}
     mode=0700
   when: "'{{ ssl_certificate }}' != '' "
 
+- name: GitlabRunner | Default TLS cert path
+  set_fact:
+    gitlab_runner_tls_ca_file: "{{ gitlab_runner_conf_path }}/certs/{{ gitlab_fqdn }}.crt"
+  when: "'{{ gitlab_runner_tls_ca_file }}' == ''"
+
 # Copy gitlab/ci SSL certificate
 - name: GitlabRunner | Deploy self-signed certificate.
   template:
     src={{ item.src }}
     dest={{ item.dest }}
+    owner={{ gitlab_runner_user }}
+    group={{ gitlab_runner_user }}
     mode=0644
   with_items:
     - src:  "ssl_certificate.j2"
