@@ -1,32 +1,32 @@
 ---
 
-#
-# - name: GitlabRunner | import ssl certificate from server
-#   command: |
-#     "echo -n | \
-#      openssl s_client -connect {{ gitlab_external_url }}:443 | \
-#      sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ./gitlab.cert"
 
-# - name: GitlabRunner | list configured runners
-#   command: gitlab-runner list
-#   register: configured_runners
-#   changed_when: False
-#
-# - name: GitlabRunner | register runner to GitLab
-#   command: gitlab-runner register >
-#     --non-interactive
-#     --url '{{ gitlab_runner_coordinator_url }}'
-#     --registration-token '{{ gitlab_runner_registration_token }}'
-#     --description '{{ gitlab_runner_description }}'
-#     --tag-list '{{ gitlab_runner_tags | join(",") }}'
-#     --executor '{{ gitlab_runner_executor }}'
-#     --docker-image '{{ gitlab_runner_docker_image }}'
-#   when: configured_runners.stderr.find('\n{{ gitlab_runner_description }}') == -1
+- name: GitlabRunner | import ssl certificate from server
+  command: |
+    "echo -n | \
+     openssl s_client -connect {{ gitlab_external_url }}:443 | \
+     sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ./gitlab.cert"
 
-# TODO: use a more elaborate template.
-- name: GitlabRunner | set global setup concurrent option
-  template:
-    src=config.toml.j2
-    dest="{{ gitlab_runner_conf_path }}/config.toml"
-  notify:
-    - reload gitlab-runner
+- name: GitlabRunner | list configured runners
+  command: gitlab-runner list
+  register: configured_runners
+  changed_when: False
+
+- name: GitlabRunner | register runner to GitLab
+  command: gitlab-runner register >
+    --non-interactive
+    --url '{{ gitlab_runner_coordinator_url }}'
+    --registration-token '{{ gitlab_runner_registration_token }}'
+    --description '{{ gitlab_runner_description }}'
+    --tag-list '{{ gitlab_runner_tags | join(",") }}'
+    --executor '{{ gitlab_runner_executor }}'
+    --docker-image '{{ gitlab_runner_docker_image }}'
+  when: configured_runners.stderr.find('\n{{ gitlab_runner_description }}') == -1
+
+# # TODO: use a more elaborate template.
+# - name: GitlabRunner | set global setup concurrent option
+#   template:
+#     src=config.toml.j2
+#     dest="{{ gitlab_runner_conf_path }}/config.toml"
+#   notify:
+#     - reload gitlab-runner
