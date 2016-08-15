@@ -17,8 +17,10 @@ ssl_certificate: ''
 
 # gitlab_runner_list_runners:
 #   - host: gitlab-runner-1
+#     registration_token: 'CopyYourTokenHere'
+#     description: 'SomeDescription'
+#     executor: 'AExecutor'
 #     args: |
-#       --url 'https://{{ gitlab_fqdn }}/ci'
 #       --registration-token 'CopyYourTokenHere'
 #       --description 'SomeDescription'
 #       --tag-list 'OneTag, TwoTags'
