@@ -1,19 +1,22 @@
 ---
 
-- fail: msg="gitlab runner token is invalid; {{ gitlab_runner_token }}"
-  when: "'{{ gitlab_runner_token }}' == ''"
+- fail: msg="gitlab runner token is invalid; {{ item.host }}:{{ item.gitlab_runner_token }}"
+  when: "'{{ item.registration_token }}' == ''"
+  with_items: "{{ gitlab_runner_list_runners }}"
   tags:
     - check-vars
 
-- fail: msg="gitlab runner executor is invalid; {{ gitlab_runner_executor }}"
-  when: "'{{ gitlab_runner_executor }}' != 'docker'             and \
-         '{{ gitlab_runner_executor }}' != 'docker+machine'     and \
-         '{{ gitlab_runner_executor }}' != 'docker-ssh'         and \
-         '{{ gitlab_runner_executor }}' != 'docker-ssh+machine' and \
-         '{{ gitlab_runner_executor }}' != 'shell'              and \
-         '{{ gitlab_runner_executor }}' != 'ssh'                and \
-         '{{ gitlab_runner_executor }}' != 'parallels'          and \
-         '{{ gitlab_runner_executor }}' != 'virtualbox'             "
+
+- fail: msg="gitlab runner executor is invalid; {{ item.host }}:{{ item.executor }}"
+  when: "'{{ item.executor }}' != 'docker'             and \
+         '{{ item.executor }}' != 'docker+machine'     and \
+         '{{ item.executor }}' != 'docker-ssh'         and \
+         '{{ item.executor }}' != 'docker-ssh+machine' and \
+         '{{ item.executor }}' != 'shell'              and \
+         '{{ item.executor }}' != 'ssh'                and \
+         '{{ item.executor }}' != 'parallels'          and \
+         '{{ item.executor }}' != 'virtualbox'             "
+  with_items: "{{ gitlab_runner_list_runners }}"
   tags:
     - check-vars
 
@@ -22,9 +25,10 @@
     name=docker
     state=started
   register: service_docker
-  when: "'{{ gitlab_runner_executor }}' == 'docker'             or \
-         '{{ gitlab_runner_executor }}' == 'docker+machine'     or \
-         '{{ gitlab_runner_executor }}' == 'docker-ssh'         or \
-         '{{ gitlab_runner_executor }}' == 'docker-ssh+machine'    "
+  when: "'{{ item.executor }}' == 'docker'               or  \
+         '{{ item.executor }}' == 'docker+machine'       or  \
+         '{{ item.executor }}' == 'docker-ssh'           or  \
+         '{{ item.executor }}' == 'docker-ssh+machine' "
+  with_items: "{{ gitlab_runner_list_runners }}"
   tags:
     - check-services
